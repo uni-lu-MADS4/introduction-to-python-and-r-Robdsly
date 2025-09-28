@@ -1,7 +1,7 @@
 ---
 title: "Getting started with R and Python"
-date: 2025-09-22
-author: "Your name"
+date: 2025-09-28
+author: "Robin Szymanski"
 format: html
 embed-resources: true
 ---
@@ -10,14 +10,22 @@ embed-resources: true
 
 ### Name concepts of a programming language
 
-> Write answer here 
+> One concept of Python: Pass by reference (if you assign x=y, both x and y point to same object).
+> Python also supports Duck Typing: Function accepts object based on behavior, not type. In R, type consistency is enforced (by tidyverse)
+> Python is object-oriented and functional, while R focusses more on functional programming
+> Both R and Python are interpreted (code runs without compiling before, as in C++ for example)
 
 ### Check operator precedence
+
+
 
  - Calculate `2 + 6 * 5 ^ 2`
  
 ```{r}
-# Write answer here
+a <- 2 + (6 * 5^2)  # Cleaner version
+b <- 2 + 6 * 5 ^ 2
+print(a)
+print(b)
 ```
 
 
@@ -25,14 +33,15 @@ embed-resources: true
 
 ::: unilur-solution
 Exponentiation
-
+Multiplication
+Addition
 ::: 
 
  - Change the order of execution giving priority to `+`
 
 
 ```{r}
-# Write answer here
+(2 + 6) * 5 ^ 2
 ```
  
 
@@ -41,21 +50,55 @@ Exponentiation
 There are three ways (in Python) to exchange the values of the names!
 
 ```{python}
+print("Version 1")
 a = 5
 b = 10
-```
+print(f"Before swap: a={a}, b={b}")
 
-```{python}
-# Write answer here
+# Version 1
+def swap_variables(x, y):
+  return b, a
+a, b = swap_variables(a, b)
+print(f"After swap: a={a}, b={b}")
+
+# Version 2
+print("\nVersion 2")
+a = 5
+b = 10
+print(f"Before swap: a={a}, b={b}")
+
+tmp_list = list([a, b]) # Could also add .copy(), if unsure. Not sure if so clean this way.
+a = tmp_list[1]
+b = tmp_list[0]
+print(f"After swap: a={a}, b={b}")
+
+# Version 3
+print("\nVersion 3")
+a = 5
+b = 10
+print(f"Before swap: a={a}, b={b}")
+
+# Hmm, limited time right now. I'd probably find a third way ;-)
+
 ```
 
 ### What is the output of the following code?
 
 ```{python}
-# Write answer here
+x = 7
+1 < x < 10 < x + 3 <= 13
 ```
 
 Explain in your words!
+
+On slide 20, we set x=7, and did four comparisons:
+1) 1 < x: True, because 7 > 1
+2) x < 10: True, because 7 < 10
+3) 10 < x + 3: False, because 7 + 3 = 10, and this is equal to 10, not smaller
+4) x + 3 <= 13: True, since 10 is < 13
+
+=> Since all of the conditions have to be true, but one is false, the whole output is false, since
+these four comparisons are basically concatenated by an "and".
 
 ::: unilur-solution
 Python parses four expressions, 1 < x and x < 10 and 10 < x + 3 and x + 3 <= 13 [ ] True or [ ] False 
@@ -71,7 +114,7 @@ A group of people in the street were asked about their age and answered `18, 20,
 ### Tip
 You can use the function `replace()` to substitute `NA` with `0`.
 
-Consider `is.na()` to identify indeces of missing positions.
+Consider `is.na()` to identify indices of missing positions.
 :::
 
  * Compute the average age. 
@@ -81,7 +124,30 @@ Consider `is.na()` to identify indeces of missing positions.
  * How large is error that you make when ignore missing values?
 
 ```{r}
-# Write answer here
+people_age <- c(18, 20, 34, 53, 12, NA, NA, 72, 75, 13)
+avrg_age_ignore_NA <- mean(people_age, na.rm=TRUE)
+avrg_age_ignore_NA
+
+people_age_NA_replaced_zero <- replace(people_age, is.na(people_age), 0)
+avrg_age_NA_replaced_zero <- mean(people_age_NA_replaced_zero)
+
+# Bonus: Replace with median value (better than 0, but in this case not a good
+# solution since the data set is pretty small)
+median_age <- median(people_age, na.rm=TRUE)
+people_age_NA_replaced_median <- replace(people_age, is.na(people_age), median_age)
+avrg_age_NA_replaced_median <- mean(people_age_NA_replaced_median)
+
+error_ignore_vs_replace_zero <- avrg_age_ignore_NA - avrg_age_NA_replaced_zero
+error_ignore_vs_replace_median <- avrg_age_ignore_NA - avrg_age_NA_replaced_median
+
+cat("Average age - ignoring missing values:", avrg_age_ignore_NA)
+cat("\nAverage age - replacing missing values by 0:", avrg_age_NA_replaced_zero)
+cat("\nAverage age - replacing missing values by median:", avrg_age_NA_replaced_median)
+cat("\nError - Ignore vs. replace by 0:", error_ignore_vs_replace_zero)
+cat("\nError - Ignore vs. replace by 0:", error_ignore_vs_replace_median)
+
+# If you really have to replace the values in such a small data set, it's better 
+#to replace by median or mean (median more robust)
 ```
 
 ### Create a data frame
@@ -94,17 +160,76 @@ Paul  | 16  | 57.0 |green  |   1
  John  |17   |65.3 | blue    | 2
 
 ```{r}
-# Write answer here
+classroom = data.frame(
+  name=c("Paul", "Mary", "Sara", "John"), 
+  age=c(16L, 16L, 16L, 17L), 
+  weight=c(57.0, 50.0, 52.6, 65.3),
+  eye=c("green", "blue", "black", "blue"),
+  group=c(1L, 1L, 2L, 2L)
+  )
+
+# Alternative: tibble
+# library(tibble)
+# tbl <- tibble(
+#   name=c("Paul", "Mary", "Sara", "John"), 
+#   age=c(16, 16, 16, 17), 
+#   weight=c(57.0, 50.0, 52.6, 65.3),
+#   eye=c("green", "blue", "black", "blue"),
+#   group=c(1, 1, 2, 2)
+# )
+# tbl
+
+
+# There are probably more elegant ways to do it, like using for loops over all 
+# columns, or even better: dedicated functions (like 'str' below), but I will do it manually
+# for each column for now, since we haven't seen the tools, yet.
+
+#print("Output of classroom data frame:")
+#classroom
+print("Types of classroom variables")
+cat("Atomic:", is.atomic(classroom), "\n")
+cat("Type of 'name' column:", typeof(classroom$name), "\n")
+cat("Type of 'age' column:", typeof(classroom$age), "\n")
+cat("Type of 'weight' column:", typeof(classroom$weight), "\n")
+cat("Type of 'eye' column:", typeof(classroom$eye), "\n")
+cat("Type of 'group' column:", typeof(classroom$group), "\n")
+
+#str(classroom)   # Faster and better. Gives good overview plus datatypes
+
+
 ```
 
 Assign the data frame to a variable named `classroom`.
+-> See above
 
 Describe the type of variables in `classroom`.
+-> See above
 
 Which data structure would you use in base Python?
 
 ```{python}
-# Write answer here
+# If it is not base Python, I would you pandas dataframes, of course.
+# But in base Python, I will use dictionaries with lists for the elements. Dictionaries come shortly
+# after the question slide. If dictionaries are not allowed, I could use just lists. Let's do both
+
+classroom_dict = {
+  "name": ["Paul", "Mary", "Sara", "John"], # Lists, no tuples, since more flexible (mutable)
+  "age": [16, 16, 16, 17], 
+  "weight": [57.0, 50.0, 52.6, 65.3],
+  "eye": ["green", "blue", "black", "blue"],
+  "group": [1, 1, 2, 2]
+}
+
+print(classroom_dict)
+
+classroom_list = [
+  ["name", "age", "weight", "eye", "group"],
+  ["Paul", 16, 57.0, "green", 1],
+  ["Mary", 16, 50.0, "blue", 1]
+  #...    # And so on, you get the point
+  ]
+print(classroom_list)
+
 ```
 
 
@@ -193,13 +318,59 @@ Using `mtcars` (R) and the provided dictionary (Python):
 - In R, calculate the average `mpg` for cars with `cyl == 6` using **vectorized** operations.
    
 ```{r}
-# Write answer here
+# Creating a subset for all cars with 6 cylinders, and only the mpgg column
+mpg_cyl_6 <- subset(mtcars, cyl==6, select=c(mpg)) # select=mpg works equivalently
+
+mean_mpg_cyl_6 <- mean(mpg_cyl_6$mpg, na_rm=FALSE) # Alternative: Replace NAs by median, but 1) only 7 rows, 2) no NAs in data
+cat("Mean of mpg column for 6 cylinders:", mean_mpg_cyl_6)
 ```
 
 - In base Python, calculate the same quantity.
 
 ```{python}
-# Write answer here
+# Create subsets
+list_cyl = mtcars["cyl"]
+list_mpg = mtcars["mpg"]
+
+
+# === Method 1: List comprehension ===  Note: I used this before I looked at slides of Key-value data
+
+# Create a mask
+mask = [i==6 for i in list_cyl]   # We did not have it, yet, but I can't think of another way right now.
+
+# Apply the mask to get values of mpg for 6 cylinders
+list_mpg_cyl_6 = [i for i,k in zip(list_mpg, mask) if k==True]
+
+# Calculate mean
+if len(list_mpg_cyl_6) != 0:
+  mean_mpg_cyl_6 = sum(list_mpg_cyl_6)/len(list_mpg_cyl_6)
+  # Print results
+  print(f"Method 1: Mean of mpg column for 6 cylinders: {mean_mpg_cyl_6:0.2f}")
+else:
+  print("Division by zero.")
+
+
+
+
+# Method 2: for-loop
+
+# Select entries for 6 cylinders in mpg column
+list_mpg_cyl_6 = []
+for i in range(0, len(list_cyl)):
+  if list_cyl[i] == 6:
+    list_mpg_cyl_6.append(list_mpg[i])
+  
+# Calculate mean
+if len(list_mpg_cyl_6) != 0:
+  mean_mpg_cyl_6 = sum(list_mpg_cyl_6)/len(list_mpg_cyl_6)
+  # Print results
+  print(f"Method 2: Mean of mpg column for 6 cylinders: {mean_mpg_cyl_6:0.2f}")
+else:
+  print("Division by zero.")
+
+
+# There are many more methods
+
 ```
 
 
@@ -208,13 +379,25 @@ Using `mtcars` (R) and the provided dictionary (Python):
 - In R, count the number of cars where `mpg > 20` and `hp <= 100` using vectorized logical operations.
 
 ```{r}
-# Write answer here
+df_sub = subset(mtcars, (mpg > 20) & (hp <= 100))   # Filtering
+cat("Number of cars where `mpg > 20` and `hp <= 100`:", length(df_sub$cyl))   # Number of rows
 ```
 
 - In Python, perform the same operation.
 
 ```{python}
-# Write answer here
+# Using method 2 from above
+
+list_hp = mtcars["hp"]
+list_mpg = mtcars["mpg"]
+
+# Apply filter and count at same time
+count = 0
+for i in range(0, len(list_mpg)):
+  if (list_mpg[i] > 20) and (list_hp[i] <= 100):
+    count += 1  # Increase counter
+    
+print(f"Number of cars where 'mpg > 20' and 'hp <= 100': {count}")
 ```
 
 
@@ -225,14 +408,21 @@ Using `mtcars` (R) and the provided dictionary (Python):
 - In R, check the type of `mtcars$mpg` and coerce it to integer.
 
 ```{r}
-# Write answer here
+cat("Type of mtcars$mpg column before coercion:", typeof(mtcars$mpg), "\n") # If you execute it a second time, it will output integer, because value was saved
+mtcars$mpg <- as.integer(mtcars$mpg)
+cat("Type of mtcars$mpg column after coercion:", typeof(mtcars$mpg), "\n")
 ```
 
 - In Python, check the type of `mtcars['mpg']` and coerce it to a list of integers.
 
  
 ```{python}
-# Write answer here
+print(f"Type of mtcars['mpg'] before coercion: {type(mtcars['mpg'][0])}")
+
+# Convert elements of list to integer
+mtcars['mpg'] = [int(i) for i in mtcars['mpg']]   # Or by for-loop, which is the same
+
+print(f"Type of mtcars['mpg'] after coercion: {type(mtcars['mpg'][0])}")
 ```
 
 
@@ -240,13 +430,29 @@ Using `mtcars` (R) and the provided dictionary (Python):
 - In R, subset `mtcars` to select rows where `gear == 4` and columns `mpg`, and `hp`.
 
 ```{r}
-# Write answer here
+df_sub <- subset(mtcars, gear==4, select=c(mpg, hp))
+df_sub
 ```
 
 - In Python, perform the same operation using explicit iteration.
 
 ```{python}
-# Write answer here
+
+# Create empty dictionary for subset
+df_sub = {
+  "mpg": [],
+  "hp": []
+}
+
+# Filter for gear = 4 and create subset
+for i in range(0, len(mtcars['gear'])):
+  if mtcars['gear'][i] == 4:
+    df_sub["mpg"].append(mtcars['mpg'][i])
+    df_sub["hp"].append(mtcars['hp'][i])
+
+df_sub
+
+# Note: The values in the mpg column are different from the R, because mpg was converted to int before for the Python code
 ```
 
 
@@ -257,12 +463,36 @@ Using `mtcars` (R) and the provided dictionary (Python):
 - In R, load the `tidyverse` package and use `dplyr::filter()` to select cars with `am == 1` (manual transmission).
 
 ```{r}
-# Write answer here
+# I can't see it in the slides, yet, so I assume we don't have to do it, but I'll try anyway by the R documentation in RStudio
+library(tidyverse)
+
+#starwars %>% filter(skin_color == "light", eye_color == "brown")
+# is equivalent to
+# starwars[starwars$skin_color == "light" & starwars$eye_color == "brown", ]
+# in R base code. Thus
+
+mtcars %>% filter(am == 1)
+
 ```
 
 - In Python, import the `statistics` module and calculate the mean `mpg` for cars with `am == 1`.
 ```{python}
-# Write answer here
+# Also not in slides. Brief look into library. it seems like a statistical library.
+# Thus filtering remains the same as before. I should have created a function for filtering.
+
+import statistics
+
+list_am = mtcars["am"]
+list_mpg = mtcars["mpg"]
+
+list_mpg_for_am_1 = []
+for i in range(0, len(list_am)):
+  if list_am[i] == 1:
+    list_mpg_for_am_1.append(list_mpg[i])
+    
+statistics.mean(list_mpg_for_am_1)
+
+# Caution: mpg was converted to int before!
 ```
 
 
